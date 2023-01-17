@@ -1,0 +1,6 @@
+#all executable files
+*.exe
+#all object files
+*.obj
+#Lab direcories
+LAB*
