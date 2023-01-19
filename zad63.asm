@@ -36,11 +36,17 @@ obsluga_zegara PROC
 ; sprawdzenie czy adres bieżący osiągnął koniec pamięci ekranu
 	cmp bx,4000
 jb wysw_dalej ; skok gdy nie koniec ekranu
-; wyzerowanie adresu bieżącego, gdy cały ekran zapisany
-	mov bx, 0
+    mov bx, cs:licznik8
+    inc bx
+    inc bx
+    mov cs:licznik8, bx
+
 ;zapisanie adresu bieżącego do zmiennej 'licznik'
 wysw_dalej:
 	mov cs:licznik,bx
+    mov bx, cs:licznik
+    
+
 ; odtworzenie rejestrów
 	pop es
 	pop bx
@@ -49,6 +55,7 @@ wysw_dalej:
 	jmp dword PTR cs:wektor8
 ; dane programu ze względu na specyfikę obsługi przerwań
 ; umieszczone są w segmencie kodu
+    licznik8 dw 0
 	licznik dw 320 ; wyświetlanie począwszy od 2. wiersza
 	wektor8 dd ?
 obsluga_zegara ENDP
