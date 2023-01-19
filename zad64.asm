@@ -50,41 +50,34 @@ wyswietl_AL ENDP
 ; procedura obsługi przerwania zegarowego
 obsluga_klawiatury PROC
 ; przechowanie używanych rejestrów
-	push ax
-	push bx
-	push es
-; wpisanie adresu pamięci ekranu do rejestru ES - pamięć
-; ekranu dla trybu tekstowego zaczyna się od adresu B8000H,
-; jednak do rejestru ES wpisujemy wartość B800H,
-; bo w trakcie obliczenia adresu procesor każdorazowo mnoży
-; zawartość rejestru ES przez 16
+ push ax
+ push bx
+ push es
 
-	mov ax, 0B800h ;adres pamięci ekranu
-	mov es, ax
-; zm;ienna 'licznik' zawiera adres bieżący w pamięci ekranu
+    mov ax, 0B800h ;adres pamięci ekranu
+    mov es, ax
+    mov bx, cs:licznik
 
-
-    add bx,2
-; przesłanie do pamięci ekranu kodu ASCII wyświetlanego znaku
-; i kodu koloru: biały na czarnym tle (do następnego bajtu)
     in al, 60h
     call wyswietl_AL
-	
 
+    cmp bx,4000
+    jb wysw_dalej ; skok gdy nie koniec ekranu
+    mov bx, 0
 
-; odtworzenie rejestrów
-	pop es
-	pop bx
-	pop eax
-; skok do oryginalnej procedury obsługi przerwania zegarowego
-	jmp dword PTR cs:wektor9
+wysw_dalej:
+    mov cs:licznik,bx
+    ; odtworzenie rejestrów
+    pop es
+    pop bx
+    pop ax
 
-	wektor9 dd ?
+    jmp dword PTR cs:wektor9
+
+    licznik dw 320 ; wyświetlanie począwszy od 2. wiersza
+    wektor9 dd ?
 obsluga_klawiatury ENDP
-;============================================================
-; program główny - instalacja i deinstalacja procedury
-; obsługi przerwań
-; ustalenie strony nr 0 dla trybu tekstowego
+
 zacznij:
 	mov al, 0
 	mov ah, 5
