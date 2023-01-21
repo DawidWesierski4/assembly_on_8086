@@ -24,7 +24,7 @@ linia	PROC
 	mov cx, 0
 	mov dx, cs:licznik
 
-	mov bx, cs:adres_piksela ; adres bie¿¹cy piksela
+	mov bx, cs:adp ; adres bie¿¹cy piksela
 	mov cs:kolor, 14
 	
 	mov al, cs:kolor
@@ -57,15 +57,11 @@ pozioma:
 	
 
 koniec:
-; odtworzenie rejestrów
 	 pop es
 	 pop dx
 	 pop cx
 	 pop bx
 	 pop ax
-
-; skok do oryginalnego podprogramu obs³ugi przerwania
-; zegarowego
 	jmp dword PTR cs:wektor8
 
 zmiana:
@@ -80,9 +76,8 @@ reset:
 	mov dx, 0
 	jmp back
 
-; zmienne procedury
-	kolor db 14 ; bie¿¹cy numer koloru                        zolty - 14, czarny - 16
-	adres_piksela dw 10 ; bie¿¹cy adres piksela
+	kolor db 14
+	adp dw 10
 	przyrost dw 0
 	counter dw 0
 	wektor8 dd ?
@@ -124,11 +119,11 @@ czekaj:
 	cmp al, 'x'
 	jne czekaj
 
-	mov ah, 0 ; funkcja nr 0 ustawia tryb sterownika
-	mov al, 3H ; nr trybu
+	mov ah, 0
+	mov al, 3H
 	int 10H
 
-; odtworzenie oryginalnej zawartoœci wektora nr 8
+
 	mov eax, cs:wektor8
 	mov es:[32], eax
 
