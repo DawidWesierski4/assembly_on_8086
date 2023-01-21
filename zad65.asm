@@ -12,45 +12,42 @@ rozkazy SEGMENT use16
  
 linia PROC
 ; przechowanie rejestrów
- push ax
- push bx
- push es
- mov ax, 0A000H ; adres pamięci ekranu dla trybu 13H
- mov es, ax
- mov bx, cs:adres_piksela ; adres bieżący piksela
- mov al, cs:kolor
- mov es:[bx], al ; wpisanie kodu koloru do pamięci ekranu
- mov cx, cs:max320
-; przejście do następnego wiersza na ekranie
- add bx, 322
- add cx, 2
+    push ax
+    push bx
+    push es
+    mov ax, 0A000H
+    mov es, ax
+    mov bx, cs:current 
+    mov al, cs:col
+    mov es:[bx], al 
+    mov cx, cs:max320
+
+    add bx, 322
+    add cx, 2
 ; sprawdzenie czy cała linia wykreślona
- mov ax, 310
- sub ax, cs:przyrost
- cmp cx, ax
- jb dalej ; skok, gdy linia jeszcze nie wykreślona
-; kreślenie linii zostało zakończone - następna linia będzie
-; kreślona w innym kolorze o 10 pikseli dalej
- mov cx, 0
- add word PTR cs:przyrost, 10
- mov bx, 10
- add bx, cs:przyrost
- inc cs:kolor ; kolejny kod koloru
-; zapisanie adresu bieżącego piksela
-dalej:
+    mov ax, 310
+    sub ax, cs:przyrost
+    cmp cx, ax
+    jb if_noLine
+    mov cx, 0
+    add word PTR cs:przyrost, 10
+    mov bx, 10
+    add bx, cs:przyrost
+    inc cs:col
+    ; zapisanie adresu bieżącego piksela
+if_noLine:
  mov cs:max320, cx
- mov cs:adres_piksela, bx 
+ mov cs:current, bx 
 ; odtworzenie rejestrów
- pop es
- pop bx
- pop ax
-; skok do oryginalnego podprogramu obsługi przerwania
-; zegarowego
- jmp dword PTR cs:wektor8
+    pop es
+    pop bx
+    pop ax
+
+    jmp dword PTR cs:wektor8
  
 ; zmienne procedury
-kolor db 1 ; bieżący numer koloru
-adres_piksela dw 10 ; bieżący adres piksela
+col db 1 ; bieżący numer koloru
+current dw 10 ; bieżący adres piksela
 przyrost dw 0
 wektor8 dd ?
 max320 dw 0
